@@ -16,10 +16,12 @@ import (
 
 func main() {
 
+	optional := flag.Bool("optional", false, "include optional inputs")
+
 	flag.Parse()
 
 	args := flag.Args()
-	if len(args) < 1 {
+	if len(args) < 2 {
 		fmt.Println("Expected two args: src and name")
 		os.Exit(1)
 	}
@@ -28,8 +30,14 @@ func main() {
 	name := args[1]
 
 	keys := make([]string, 0)
-	for k := range tf.Variables {
-		keys = append(keys, k)
+	for k, v := range tf.Variables {
+		if *optional {
+			keys = append(keys, k)
+			continue
+		}
+		if v.Required {
+			keys = append(keys, k)
+		}
 	}
 	sort.Strings(keys)
 
